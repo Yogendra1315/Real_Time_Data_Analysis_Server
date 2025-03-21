@@ -6,16 +6,12 @@ require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
 
-/**
- * Generate JWT token
- */
-const generateToken = (userId, username) => {
-    return jwt.sign({ userId, username }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+// Generate JWT token
+const generateToken = (id) => {
+    return jwt.sign({ id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
-/**
- * Signup Controller
- */
+// Signup Controller
 exports.signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -24,24 +20,18 @@ exports.signup = async (req, res) => {
             return res.status(400).json({ message: "Name, email, and password are required" });
         }
 
-        // Check if user exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
 
-        // Generate username from email
         const username = email.split("@")[0];
-
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user
         const newUser = new User({ name, email, password: hashedPassword, username });
         await newUser.save();
 
-        // Generate JWT token
-        const token = generateToken(newUser._id, newUser.username);
+        const token = generateToken(newUser._id);
 
         res.status(201).json({ message: "User registered successfully", token, user: { username, email } });
     } catch (error) {
@@ -49,9 +39,7 @@ exports.signup = async (req, res) => {
     }
 };
 
-/**
- * Login Controller
- */
+// Login Controller
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -70,18 +58,10 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Generate JWT token
-        const token = generateToken(user._id, user.username);
+        const token = generateToken(user._id);
 
         res.status(200).json({ message: "Login successful", token, user: { username: user.username, email: user.email } });
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
-};
-
-/**
- * Get User Profile (Protected Route)
- */
-exports.getUserProfile = async (req, res) => {
-    res.status(200).json({ user: req.user });
 };
