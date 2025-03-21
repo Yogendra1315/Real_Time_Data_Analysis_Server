@@ -20,14 +20,7 @@ const app = express();
 connectDB();
 
 // CORS Configuration
-const allowedOrigins = [process.env.FRONTEND_URL || "http://localhost:3000"];
-app.use(
-    cors({
-        origin: allowedOrigins,
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true,
-    })
-);
+app.use(cors());
 
 // Middleware
 app.use(express.json());
