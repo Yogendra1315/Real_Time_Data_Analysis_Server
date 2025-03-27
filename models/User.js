@@ -5,10 +5,11 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 6 },
     username: { type: String, required: true },
+
+    // ✅ Additional fields
     profilePicture: { 
         type: String, 
-        default: ""
-        //"http://localhost:5000/image/default.jpg"
+        default: "/image/default-profile.png"// Set a default profile picture
     },
     bio: { type: String, default: "" },
     phone: { type: String, default: "" },
